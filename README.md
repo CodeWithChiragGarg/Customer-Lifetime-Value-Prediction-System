@@ -15,7 +15,7 @@
 
 <br/>
 
-**Built by [Stuti Singh](https://github.com/stutisingh1701)**
+**Built collaboratively by [Chirag Garg](https://github.com/CodeWithChiragGarg) and [Stuti Singh](https://github.com/stutisingh1701)**
 
 </div>
 
@@ -47,7 +47,7 @@
 
 ## 🏗️ System Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
 │                    Frontend (Next.js 14)                 │
 │   Dashboard │ Segments │ Custom CSV Predictor            │
@@ -74,7 +74,7 @@
 
 ### Dual Ensemble Architecture
 
-```
+```text
                     Input: Customer Transaction History
                                     │
               ┌─────────────────────┼─────────────────────┐
@@ -127,6 +127,7 @@ predictions      → customer_id, predicted_clv_90d, churn_probability
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Python 3.10+
 - Node.js 18+
 - Git
@@ -134,7 +135,7 @@ predictions      → customer_id, predicted_clv_90d, churn_probability
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/stutisingh1701/Customer-Lifetime-Value-Prediction-System.git
+git clone https://github.com/CodeWithChiragGarg/Customer-Lifetime-Value-Prediction-System.git
 cd Customer-Lifetime-Value-Prediction-System
 ```
 
@@ -155,6 +156,8 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 ### 3. Start Frontend
 
+Open another terminal:
+
 ```bash
 cd frontend
 npm install
@@ -164,7 +167,7 @@ npm run dev
 
 ### 4. Open in Browser
 
-```
+```text
 http://localhost:3000
 ```
 
@@ -177,6 +180,7 @@ docker-compose up --build
 ```
 
 This starts:
+
 - 🐘 PostgreSQL database
 - ⚡ FastAPI backend on port `8000`
 - 🌐 Next.js frontend on port `3000`
@@ -199,39 +203,43 @@ This starts:
 
 ## 📁 Project Structure
 
-```
+```text
 Customer-Lifetime-Value-Prediction-System/
 │
 ├── backend/
 │   ├── app/
-│   │   ├── main.py          # FastAPI entry point
-│   │   ├── config.py        # Settings & environment
-│   │   ├── database.py      # SQLAlchemy setup
-│   │   ├── models.py        # ORM models
+│   │   ├── main.py
+│   │   ├── config.py
+│   │   ├── database.py
+│   │   ├── models.py
 │   │   └── routers/
-│   │       ├── predict.py   # CLV prediction endpoints
-│   │       └── segments.py  # Segmentation endpoints
+│   │       ├── predict.py
+│   │       └── segments.py
+│   │
 │   ├── ml/
-│   │   ├── probabilistic.py # BG/NBD + Gamma-Gamma
-│   │   └── xgboost_model.py # XGBoost regressor
+│   │   ├── probabilistic.py
+│   │   └── xgboost_model.py
+│   │
 │   ├── scripts/
-│   │   ├── ingest_data.py       # Data ingestion
-│   │   ├── feature_engineering.py # RFM computation
-│   │   ├── train_model.py       # Model training
-│   │   └── test_accuracy.py     # 5-fold CV evaluation
+│   │   ├── ingest_data.py
+│   │   ├── feature_engineering.py
+│   │   ├── train_model.py
+│   │   └── test_accuracy.py
+│   │
 │   ├── requirements.txt
 │   └── Dockerfile
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── app/             # Next.js pages
-│   │   ├── components/      # React components
-│   │   └── lib/api.js       # API client
+│   │   ├── app/
+│   │   ├── components/
+│   │   └── lib/
+│   │       └── api.js
 │   ├── package.json
 │   └── Dockerfile
 │
 ├── docker-compose.yml
-├── run.bat                  # Windows one-click launcher
+├── run.bat
 └── README.md
 ```
 
@@ -264,11 +272,15 @@ Customer-Lifetime-Value-Prediction-System/
 
 ---
 
-## 👩‍💻 Author
+## 👥 Project Contributors
 
 <div align="center">
 
-**Stuti Singh**
+### Chirag Garg
+
+[![GitHub](https://img.shields.io/badge/GitHub-CodeWithChiragGarg-black?style=for-the-badge&logo=github)](https://github.com/CodeWithChiragGarg)
+
+### Stuti Singh
 
 [![GitHub](https://img.shields.io/badge/GitHub-stutisingh1701-black?style=for-the-badge&logo=github)](https://github.com/stutisingh1701)
 
@@ -278,4 +290,4 @@ Customer-Lifetime-Value-Prediction-System/
 
 ## 📄 License
 
-Private — All rights reserved © Stuti Singh 2026
+Private — All rights reserved © Chirag Garg & Stuti Singh 2026
