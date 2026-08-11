@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: clv-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: clv_db
+      POSTGRES_USER: clv_user
+      POSTGRES_PASSWORD: clv_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: clv-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://clv_user:clv_password@db:5432/clv_db
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      MLFLOW_TRACKING_URI: ./mlruns
+      CORS_ORIGINS: http://localhost:3000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./backend/data:/app/data
+      - mlflow_data:/app/mlruns
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: clv-frontend
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  mlflow_data:
