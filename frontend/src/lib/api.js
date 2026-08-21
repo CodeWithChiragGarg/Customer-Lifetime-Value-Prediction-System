@@ -1,69 +1,221 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 
 /**
- * Fetch dashboard summary KPIs from the backend.
- * @returns {Promise<{average_clv: number, total_active_customers: number, average_churn_risk: number, total_revenue: number}>}
+ * Fetch dashboard summary KPIs.
  */
 export async function fetchDashboardSummary() {
-  const res = await fetch(`${API_BASE}/api/v1/dashboard/summary`, {
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error("Failed to fetch dashboard summary");
-  return res.json();
-}
-
-/**
- * Fetch CLV predictions from the backend.
- * @param {Object} params
- * @param {string} [params.customerId] - Optional customer ID filter
- * @param {number} [params.limit=50]
- * @param {number} [params.offset=0]
- * @returns {Promise<Array>}
- */
-export async function fetchPredictions({ customerId, limit = 50, offset = 0 } = {}) {
-  const url = new URL(`${API_BASE}/api/v1/predict/clv`);
-  if (customerId) url.searchParams.set("customer_id", customerId);
-  url.searchParams.set("limit", limit.toString());
-  url.searchParams.set("offset", offset.toString());
-
-  const res = await fetch(url.toString(), { cache: "no-store" });
-  if (!res.ok) throw new Error("Failed to fetch predictions");
-  return res.json();
-}
-
-/**
- * Fetch customer segments from the backend.
- * @param {Object} params - Query parameters for filtering and pagination
- * @returns {Promise<{total: number, data: Array}>}
- */
-export async function fetchSegments(params = {}) {
-  const url = new URL(`${API_BASE}/api/v1/segments`);
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== null && value !== undefined && value !== "") {
-      url.searchParams.set(key, value.toString());
+  const response = await fetch(
+    `${API_BASE}/api/v1/dashboard/summary`,
+    {
+      cache: "no-store",
     }
-  });
+  );
 
-  const res = await fetch(url.toString(), { cache: "no-store" });
-  if (!res.ok) throw new Error("Failed to fetch segments");
-  return res.json();
-}
-
-/**
- * Upload custom CSV dataset to compute CLV predictions.
- * @param {FormData} formData
- * @returns {Promise<{summary: Object, predictions: Array}>}
- */
-export async function predictCustomDataset(formData) {
-  const res = await fetch(`${API_BASE}/api/v1/predict/custom`, {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.detail || "Failed to process custom dataset");
+  if (!response.ok) {
+    throw new Error(
+      "Failed to fetch dashboard summary"
+    );
   }
 
-  return res.json();
+  return response.json();
+}
+
+
+/**
+ * Fetch CLV predictions.
+ */
+export async function fetchPredictions({
+  customerId,
+  limit = 50,
+  offset = 0,
+} = {}) {
+  const url = new URL(
+    `${API_BASE}/api/v1/predict/clv`
+  );
+
+  if (customerId) {
+    url.searchParams.set(
+      "customer_id",
+      customerId
+    );
+  }
+
+  url.searchParams.set(
+    "limit",
+    limit.toString()
+  );
+
+  url.searchParams.set(
+    "offset",
+    offset.toString()
+  );
+
+  const response = await fetch(
+    url.toString(),
+    {
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Failed to fetch predictions"
+    );
+  }
+
+  return response.json();
+}
+
+
+/**
+ * Fetch customer segments.
+ *
+ * Supports filtering, sorting and pagination.
+ */
+export async function fetchSegments(
+  params = {}
+) {
+  const url = new URL(
+    `${API_BASE}/api/v1/segments`
+  );
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (
+        value !== null &&
+        value !== undefined &&
+        value !== ""
+      ) {
+        url.searchParams.set(
+          key,
+          value.toString()
+        );
+      }
+    }
+  );
+
+  const response = await fetch(
+    url.toString(),
+    {
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Failed to fetch customer segments"
+    );
+  }
+
+  return response.json();
+}
+
+
+/**
+ * Fetch Customer 360 information
+ * for one customer.
+ */
+export async function fetchCustomer360(
+  customerId
+) {
+  if (!customerId) {
+    throw new Error(
+      "Customer ID is required"
+    );
+  }
+
+  const encodedCustomerId =
+    encodeURIComponent(customerId);
+
+  const response = await fetch(
+    `${API_BASE}/api/v1/customers/${encodedCustomerId}`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error(
+        "Customer not found"
+      );
+    }
+
+    throw new Error(
+      "Failed to fetch customer details"
+    );
+  }
+
+  return response.json();
+}
+
+
+/**
+ * Fetch SHAP explanation for the
+ * XGBoost component of a customer's
+ * CLV prediction.
+ */
+export async function fetchCustomerExplanation(
+  customerId
+) {
+  if (!customerId) {
+    throw new Error(
+      "Customer ID is required"
+    );
+  }
+
+  const encodedCustomerId =
+    encodeURIComponent(customerId);
+
+  const response = await fetch(
+    `${API_BASE}/api/v1/customers/${encodedCustomerId}/explanation`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response
+      .json()
+      .catch(() => ({}));
+
+    throw new Error(
+      errorData.detail ||
+        "Failed to fetch prediction explanation"
+    );
+  }
+
+  return response.json();
+}
+
+
+/**
+ * Upload a custom CSV dataset
+ * and generate CLV predictions.
+ */
+export async function predictCustomDataset(
+  formData
+) {
+  const response = await fetch(
+    `${API_BASE}/api/v1/predict/custom`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response
+      .json()
+      .catch(() => ({}));
+
+    throw new Error(
+      errorData.detail ||
+        "Failed to process custom dataset"
+    );
+  }
+
+  return response.json();
 }

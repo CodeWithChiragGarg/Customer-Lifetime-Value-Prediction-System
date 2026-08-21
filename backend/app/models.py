@@ -33,6 +33,7 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     transaction_id = Column(String(36), primary_key=True)
+    order_id = Column(String(255), nullable=True, index=True)
     customer_id = Column(
         String(255),
         ForeignKey("customers.customer_id"),
