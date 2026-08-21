@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { predictCustomDataset } from "@/lib/api";
 
 const SAMPLE_CSV = `customer_id,recency,frequency,monetary_value,tenure
@@ -22,6 +23,7 @@ CUST_115,19,9,185.30,380
 `;
 
 export default function CustomPredictPage() {
+  const router = useRouter(); 
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -52,6 +54,13 @@ export default function CustomPredictPage() {
 
     try {
       const data = await predictCustomDataset(formData);
+
+setResult(data);
+
+sessionStorage.setItem(
+  "customPredictionResult",
+  JSON.stringify(data)
+);
       setResult(data);
     } catch (err) {
       setError(err.message || "Failed to process dataset");
@@ -396,7 +405,22 @@ export default function CustomPredictPage() {
                             className="rounded border-gray-300 text-brand-600 focus:ring-brand-500 cursor-pointer"
                           />
                         </td>
-                        <td className="px-4 py-3 font-medium text-gray-900">{row.customer_id}</td>
+                        <td className="px-4 py-3">
+  <button
+    type="button"
+    onClick={() =>
+      router.push(
+        `/custom-predict/customers/${encodeURIComponent(
+          row.customer_id
+        )}`
+      )
+    }
+    className="font-semibold text-brand-600 hover:text-brand-800 hover:underline"
+    title="Open Custom Customer 360"
+  >
+    {row.customer_id}
+  </button>
+</td>
                         <td className="px-4 py-3">{row.recency}d</td>
                         <td className="px-4 py-3">{row.frequency}</td>
                         <td className="px-4 py-3">${row.monetary_value.toFixed(2)}</td>
@@ -441,4 +465,5 @@ export default function CustomPredictPage() {
       )}
     </div>
   );
+
 }
