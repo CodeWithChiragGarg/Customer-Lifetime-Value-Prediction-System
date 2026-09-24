@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     cors_origins: str = (
         "http://localhost:3000,"
-        "https://customer-lifetime-value-prediction-system.vercel.app"
+        "https://customer-lifetime-value-prediction-liart.vercel.app"
     )
 
     class Config:
