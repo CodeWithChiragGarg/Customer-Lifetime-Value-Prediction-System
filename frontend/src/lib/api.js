@@ -1,6 +1,6 @@
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://customer-lifetime-value-api.onrender.com";
 
 /**
  * Fetch dashboard summary KPIs.
@@ -21,7 +21,6 @@ export async function fetchDashboardSummary() {
 
   return response.json();
 }
-
 
 /**
  * Fetch CLV predictions.
@@ -68,7 +67,6 @@ export async function fetchPredictions({
   return response.json();
 }
 
-
 /**
  * Fetch customer segments.
  *
@@ -112,7 +110,6 @@ export async function fetchSegments(
   return response.json();
 }
 
-
 /**
  * Fetch Customer 360 information
  * for one customer.
@@ -151,7 +148,6 @@ export async function fetchCustomer360(
   return response.json();
 }
 
-
 /**
  * Fetch SHAP explanation for the
  * XGBoost component of a customer's
@@ -189,7 +185,6 @@ export async function fetchCustomerExplanation(
 
   return response.json();
 }
-
 
 /**
  * Upload a custom CSV dataset
