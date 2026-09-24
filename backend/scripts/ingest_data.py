@@ -19,6 +19,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s — %(levelname)s — %(message)s",
 )
+
 logger = logging.getLogger(__name__)
 
 
@@ -80,7 +81,7 @@ def ingest_csv(csv_path: str, db: Session) -> dict:
             f"Available columns: {list(df.columns)}"
         )
 
-    # Remove missing customer IDs before converting to string
+    # Remove missing customer IDs
     df = df.dropna(subset=[cid_col])
 
     df["customer_id"] = (
@@ -223,6 +224,7 @@ def ingest_csv(csv_path: str, db: Session) -> dict:
 
     # transaction_id identifies each database row.
     # order_id identifies the actual purchase/order.
+
     df["transaction_id"] = [
         str(uuid.uuid4())
         for _ in range(len(df))
@@ -257,8 +259,9 @@ def ingest_csv(csv_path: str, db: Session) -> dict:
 
     else:
 
-        df["email"] = df["customer_id"].apply(
-            lambda x: f"{x}@placeholder.com"
+        df["email"] = (
+            df["customer_id"]
+            + "@placeholder.com"
         )
 
         logger.info(
@@ -314,31 +317,53 @@ def ingest_csv(csv_path: str, db: Session) -> dict:
     # ---------------------------------------------------------
 
     logger.info(
-        "Bulk inserting transactions..."
+        "Inserting transactions in batches..."
     )
 
-    tx_df = df[
-        [
-            "transaction_id",
-            "order_id",
-            "customer_id",
-            "timestamp",
-            "amount",
-        ]
-    ].copy()
+    transaction_columns = [
+        "transaction_id",
+        "order_id",
+        "customer_id",
+        "timestamp",
+        "amount",
+    ]
 
-    tx_df["amount"] = (
-        tx_df["amount"].round(2)
-    )
+    batch_size = 5000
+    transactions_added = len(df)
 
-    tx_df.to_sql(
-        "transactions",
-        db.bind,
-        if_exists="append",
-        index=False,
-    )
+    for start in range(
+        0,
+        len(df),
+        batch_size,
+    ):
 
-    transactions_added = len(tx_df)
+        batch = df.iloc[
+            start:start + batch_size
+        ][transaction_columns].copy()
+
+        batch["amount"] = (
+            batch["amount"].round(2)
+        )
+
+        batch.to_sql(
+            "transactions",
+            db.bind,
+            if_exists="append",
+            index=False,
+        )
+
+        inserted_until = min(
+            start + batch_size,
+            len(df),
+        )
+
+        logger.info(
+            f"Inserted {inserted_until}/"
+            f"{len(df)} transactions"
+        )
+
+        # Release the batch from memory
+        del batch
 
     logger.info(
         f"Inserted {transactions_added} transactions"
@@ -404,6 +429,14 @@ if __name__ == "__main__":
         print(
             f"\n[OK] Ingestion complete: {stats}"
         )
+
+    except Exception:
+
+        db.rollback()
+        logger.exception(
+            "Data ingestion failed."
+        )
+        raise
 
     finally:
 
