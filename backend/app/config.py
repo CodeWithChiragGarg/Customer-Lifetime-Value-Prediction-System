@@ -10,7 +10,11 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8000
     mlflow_tracking_uri: str = "sqlite:///mlflow.db"
-    cors_origins: str = "http://localhost:3000"
+
+    cors_origins: str = (
+        "http://localhost:3000,"
+        "https://customer-lifetime-value-prediction-system.vercel.app"
+    )
 
     class Config:
         env_file = ".env"
@@ -19,7 +23,10 @@ class Settings(BaseSettings):
     @property
     def cors_origins_list(self) -> list[str]:
         """Parse comma-separated CORS origins into a list."""
-        return [origin.strip() for origin in self.cors_origins.split(",")]
+        return [
+            origin.strip()
+            for origin in self.cors_origins.split(",")
+        ]
 
 
 settings = Settings()
