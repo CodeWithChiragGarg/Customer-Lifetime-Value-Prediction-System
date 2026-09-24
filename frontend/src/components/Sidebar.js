@@ -86,7 +86,7 @@ export default function Sidebar() {
         {/* Footer */}
         <div className="border-t border-gray-100 px-4 py-3">
           <p className="text-xs text-gray-400">
-            Owner: Stuti Singh
+            Owner: Chirag garg
           </p>
         </div>
       </div>
