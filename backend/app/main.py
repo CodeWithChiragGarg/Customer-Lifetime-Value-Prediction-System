@@ -18,9 +18,7 @@ from app.routers import predict, segments, customers
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize database tables when the application starts."""
-
     init_db()
-
     yield
 
 
@@ -45,7 +43,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
+    allow_origins=[
+        "http://localhost:3000",
+        "https://customer-lifetime-value-prediction-liart.vercel.app",
+    ],
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -82,7 +84,6 @@ app.include_router(
 @app.get("/", tags=["Health"])
 async def health_check() -> dict:
     """Check whether the CLV API is running."""
-
     return {
         "status": "healthy",
         "service": "CLV Prediction System",
@@ -95,7 +96,6 @@ async def health_check() -> dict:
 # ---------------------------------------------------------
 
 if __name__ == "__main__":
-
     uvicorn.run(
         "app.main:app",
         host=settings.api_host,
