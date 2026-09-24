@@ -3,11 +3,12 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.database import init_db
+from app.bootstrap import bootstrap_database
 from app.routers import predict, segments, customers
 
 
@@ -17,8 +18,10 @@ from app.routers import predict, segments, customers
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Initialize database tables when the application starts."""
-    init_db()
+    """Initialize and populate the database when required."""
+
+    bootstrap_database()
+
     yield
 
 
@@ -84,6 +87,7 @@ app.include_router(
 @app.get("/", tags=["Health"])
 async def health_check() -> dict:
     """Check whether the CLV API is running."""
+
     return {
         "status": "healthy",
         "service": "CLV Prediction System",
